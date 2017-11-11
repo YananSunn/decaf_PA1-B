@@ -9,7 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Parser extends Table {
+public class Parser extends Table
+{
     /**
      * Lexer.
      */
@@ -20,7 +21,8 @@ public class Parser extends Table {
      *
      * @param lexer the lexer.
      */
-    public void setLexer(Lexer lexer) {
+    public void setLexer(Lexer lexer)
+    {
         this.lexer = lexer;
     }
 
@@ -45,14 +47,16 @@ public class Parser extends Table {
      *
      * @param msg the message string.
      */
-    private void issueError(String msg) {
+    private void issueError(String msg)
+    {
         Driver.getDriver().issueError(new MsgError(lexer.getLocation(), msg));
     }
 
     /**
      * Error handler.
      */
-    private void error() {
+    private void error()
+    {
         issueError("syntax error");
     }
 
@@ -61,11 +65,14 @@ public class Parser extends Table {
      *
      * @return the token parsed by the lexer. If `undefined_token` is returned, then lexer failed.
      */
-    private int lex() {
+    private int lex()
+    {
         int token = undefined_token;
-        try {
+        try
+        {
             token = lexer.yylex();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             issueError("lexer error: " + e.getMessage());
         }
         return token;
@@ -78,7 +85,36 @@ public class Parser extends Table {
      * @param symbol the non-terminal to be passed.
      * @return the parsed value of `symbol` if parsing succeeded, otherwise `null`.
      */
-    private SemValue parse(int symbol, Set<Integer> follow) {
+    private SemValue parse(int symbol, Set<Integer> follow)
+    {
+        Set<Integer> begin = beginSet(symbol);
+        Set<Integer> end = followSet(symbol);
+        end.addAll(follow);
+
+        if (begin.contains(lookahead))
+        {
+            return work(symbol, follow);
+        }
+        else
+        {
+            error();
+            while (lookahead != 0 && !begin.contains(lookahead) && !end.contains(lookahead))
+            {
+                lookahead = lex();
+            }
+            if (begin.contains(lookahead))
+            {
+                return work(symbol, follow);
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    private SemValue work(int symbol, Set<Integer> follow)
+    {
         Pair<Integer, List<Integer>> result = query(symbol, lookahead); // get production by lookahead symbol
         int actionId = result.getKey(); // get user-defined action
 
@@ -86,14 +122,20 @@ public class Parser extends Table {
         int length = right.size();
         SemValue[] params = new SemValue[length + 1];
 
-        for (int i = 0; i < length; i++) { // parse right-hand side symbols one by one
+        for (int i = 0; i < length; i++)
+        { // parse right-hand side symbols one by one
             int term = right.get(i);
             params[i + 1] = isNonTerminal(term)
                     ? parse(term, follow) // for non terminals: recursively parse it
                     : matchToken(term) // for terminals: match token
-                    ;
+            ;
         }
 
+        for (int i = 1; i < length + 1; i++)
+            if (params[i] == null)
+            {
+                return null;
+            }
         params[0] = new SemValue(); // initialize return value
         act(actionId, params); // do user-defined action
         return params[0];
@@ -105,9 +147,11 @@ public class Parser extends Table {
      * @param expected the expected token.
      * @return same as `parse`.
      */
-    private SemValue matchToken(int expected) {
+    private SemValue matchToken(int expected)
+    {
         SemValue self = val;
-        if (lookahead != expected) {
+        if (lookahead != expected)
+        {
             error();
             return null;
         }
@@ -121,7 +165,8 @@ public class Parser extends Table {
      *
      * @return the program AST if successfully parsed, otherwise `null`.
      */
-    public Tree.TopLevel parseFile() {
+    public Tree.TopLevel parseFile()
+    {
         lookahead = lex();
         SemValue r = parse(start, new HashSet<>());
         return r == null ? null : r.prog;
@@ -133,10 +178,12 @@ public class Parser extends Table {
      *
      * @param set symbol set.
      */
-    private void printSymbolSet(Set<Integer> set) {
+    private void printSymbolSet(Set<Integer> set)
+    {
         StringBuilder buf = new StringBuilder();
         buf.append("{ ");
-        for (Integer i : set) {
+        for (Integer i : set)
+        {
             buf.append(name(i));
             buf.append(" ");
         }
@@ -150,10 +197,12 @@ public class Parser extends Table {
      *
      * @param list symbol list.
      */
-    private void printSymbolList(List<Integer> list) {
+    private void printSymbolList(List<Integer> list)
+    {
         StringBuilder buf = new StringBuilder();
         buf.append(" ");
-        for (Integer i : list) {
+        for (Integer i : list)
+        {
             buf.append(name(i));
             buf.append(" ");
         }
@@ -164,7 +213,8 @@ public class Parser extends Table {
      * Diagnose function. (For debugging)
      * Implement this by yourself on demand.
      */
-    public void diagnose() {
+    public void diagnose()
+    {
 
     }
 
