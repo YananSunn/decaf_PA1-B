@@ -155,6 +155,9 @@ public class SemValue {
             case Parser.INT:
                 msg = "keyword  : int";
                 break;
+            case Parser.IMAGE:
+                msg = "keyword  : complex";
+                break;
             case Parser.INSTANCEOF:
                 msg = "keyword  : instanceof";
                 break;
@@ -196,6 +199,7 @@ public class SemValue {
             case Parser.LITERAL:
                 switch (typeTag) {
                     case Tree.INT:
+                    case Tree.IMAGE:
                     case Tree.BOOL:
                         msg = "constant : " + literal;
                         break;

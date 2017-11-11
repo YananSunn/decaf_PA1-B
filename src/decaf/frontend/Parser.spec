@@ -11,14 +11,17 @@ javafx.util.Pair
 %start Program
 
 %tokens
-VOID   BOOL  INT   STRING   CLASS
+VOID   BOOL  INT   IMAGE    STRING   CLASS
 NULL   EXTENDS     THIS     WHILE   FOR
 IF     ELSE        RETURN   BREAK   NEW
 PRINT  READ_INTEGER         READ_LINE
 LITERAL
 IDENTIFIER   AND      OR    STATIC  INSTANCEOF
 LESS_EQUAL   GREATER_EQUAL  EQUAL   NOT_EQUAL
-'+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'
+PRINTCOMP CASE DEFAULT SUPER
+DCOPY SCOPY DO OD DOOD
+
+'+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'  '@'  '$'  '#'
 ','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
 
 %%
