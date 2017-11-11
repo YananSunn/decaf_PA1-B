@@ -559,7 +559,7 @@ ExprT6          :   Oper6 Expr7 ExprT6
                 |   /* empty */
                 ;
 
-Expr7           :   Oper7 Expr8
+Expr7           :   Oper7 Expr7
                     {
                         $$.expr = new Tree.Unary($1.counter, $2.expr, $1.loc);
                     }
@@ -621,7 +621,7 @@ AfterIdentExpr  :   '(' Actuals ')'
                 |   /* empty */
                 ;
 
-Expr9           :   Oper8 Expr10
+Expr9           :   Oper8 Expr9
                     {
                         $$.expr = new Tree.Unary($1.counter, $2.expr, $1.loc);
                     }

@@ -1,0 +1,9 @@
+class Main {
+	static void main() {
+		complex x;
+		x = -1j;
+		int re;
+		int im;
+		re = !@x;
+	}
+}
