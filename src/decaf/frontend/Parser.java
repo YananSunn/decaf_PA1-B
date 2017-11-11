@@ -93,7 +93,7 @@ public class Parser extends Table
 
         if (begin.contains(lookahead))
         {
-            return work(symbol, follow);
+            return work(symbol, end);
         }
         else
         {
@@ -104,7 +104,7 @@ public class Parser extends Table
             }
             if (begin.contains(lookahead))
             {
-                return work(symbol, follow);
+                return work(symbol, end);
             }
             else
             {
