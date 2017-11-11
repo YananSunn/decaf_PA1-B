@@ -22,7 +22,7 @@ PRINTCOMP CASE DEFAULT SUPER
 DCOPY SCOPY DO OD DOOD
 
 '+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'  '@'  '$'  '#'
-','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
+','  ':'  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
 
 %%
 
@@ -63,6 +63,10 @@ Variable        :   Type IDENTIFIER
 SimpleType      :   INT
                     {
                         $$.type = new Tree.TypeIdent(Tree.INT, $1.loc);
+                    }
+                |   IMAGE
+                    {
+                        $$.type = new Tree.TypeIdent(Tree.IMAGE, $1.loc);
                     }
                 |   VOID
                     {
@@ -231,7 +235,15 @@ Stmt            :   VariableDef
                     {
                         $$.stmt = $1.stmt;
                     }
+                |   PrintCompStmt ';'
+                    {
+                        $$.stmt = $1.stmt;
+                    }
                 |   BreakStmt ';'
+                    {
+                        $$.stmt = $1.stmt;
+                    }
+                |   DoStmt ';'
                     {
                         $$.stmt = $1.stmt;
                     }
@@ -346,6 +358,22 @@ Oper7           :   '-'
                 |   '!'
                     {
                         $$.counter = Tree.NOT;
+                        $$.loc = $1.loc;
+                    }
+                ;
+Oper8           :   '@'
+                    {
+                        $$.counter = Tree.RE;
+                        $$.loc = $1.loc;
+                    }
+                |   '$'
+                    {
+                        $$.counter = Tree.IM;
+                        $$.loc = $1.loc;
+                    }
+                |   '#'
+                    {
+                        $$.counter = Tree.COMPCAST;
                         $$.loc = $1.loc;
                     }
                 ;
@@ -593,7 +621,17 @@ AfterIdentExpr  :   '(' Actuals ')'
                 |   /* empty */
                 ;
 
-Expr9           :   Constant
+Expr9           :   Oper8 Expr10
+                    {
+                        $$.expr = new Tree.Unary($1.counter, $2.expr, $1.loc);
+                    }
+                |   Expr10
+                    {
+                        $$.expr = $1.expr;
+                    }
+                ;
+
+Expr10          :   Constant
                     {
                         $$.expr = $1.expr;
                     }
@@ -608,6 +646,22 @@ Expr9           :   Constant
                 |   THIS
                     {
                         $$.expr = new Tree.ThisExpr($1.loc);
+                    }
+                |   SUPER
+                    {
+                        $$.expr = new Tree.SuperExpr($1.loc);
+                    }
+                |   CASE '(' Expr ')' '{' CaseList DefaultExpr '}'
+                    {
+                        $$.expr = new Tree.Case($3.expr, $6.elist, $7.expr, $1.loc);
+                    }
+                |   DCOPY '(' Expr ')'
+                    {
+                        $$.expr = new Tree.DCopyExpr($3.expr, $1.loc);
+                    }
+                |   SCOPY '(' Expr ')'
+                    {
+                        $$.expr = new Tree.SCopyExpr($3.expr, $1.loc);
                     }
                 |   NEW AfterNewExpr
                     {
@@ -693,6 +747,30 @@ Actuals         :   ExprList
                     }
                 ;
 
+CaseList        :   ACaseExpr CaseList
+                    {
+                        $$.elist = new ArrayList<Tree.Expr>();
+                        $$.elist.add($1.expr);
+                        $$.elist.addAll($2.elist);
+                    }
+                |   /* empty */
+                    {
+                        $$.elist = new ArrayList<Tree.Expr>();
+                    }
+                ;
+
+ACaseExpr       :   Constant ':' Expr ';'
+                    {
+                        $$.expr = new Tree.ACaseExpr($1.expr, $3.expr, $1.loc);
+                    }
+                ;
+
+DefaultExpr     :   DEFAULT ':' Expr ';'
+                    {
+                        $$.expr = new Tree.DefaultExpr($3.expr, $1.loc);
+                    }
+                ;
+
 ExprList        :   Expr SubExprList
                     {
                         $$.elist = new ArrayList<Tree.Expr>();
@@ -714,6 +792,32 @@ SubExprList     :   ',' Expr SubExprList
                 ;
 
 // statements
+DoStmt          :   DO DoSubStmt DoBranchList OD
+                    {
+                        $$.stmt = new Tree.Dood($2.stmt, $3.slist, $1.loc);
+                    }
+                ;
+
+DoSubStmt       :   Expr ':' Stmt
+                    {
+                        $$.stmt = new Tree.DoSubStmt($1.expr, $3.stmt, $1.loc);
+                    }
+                ;
+
+DoBranchList    :   DoBranch DoBranchList
+                    {
+                        $$.slist.add($1.stmt);
+                        $$.slist.addAll($2.slist);
+                    }
+                |   /* empty */
+                ;
+
+DoBranch        :   DOOD Expr ':' Stmt
+                    {
+                        $$.stmt = new Tree.DoSubStmt($2.expr, $4.stmt, $1.loc);
+                    }
+                ;
+
 WhileStmt       :   WHILE '(' Expr ')' Stmt
                     {
                         $$.stmt = new Tree.WhileLoop($3.expr, $5.stmt, $1.loc);
@@ -762,4 +866,9 @@ PrintStmt       :   PRINT '(' ExprList ')'
                     {
                         $$.stmt = new Tree.Print($3.elist, $1.loc);
                     }
+                ;
+PrintCompStmt   :	PRINTCOMP '(' ExprList ')'
+					{
+						$$.stmt = new Tree.PrintComp($3.elist, $1.loc);
+					}
                 ;

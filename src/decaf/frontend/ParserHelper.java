@@ -1,6 +1,10 @@
 package decaf.frontend;
 
 
+import decaf.tree.Tree;
+
+import java.util.ArrayList;
+
 public class ParserHelper extends Parser {
 	/**
 	 * 辅助模版（切勿直接调用）
@@ -28,6 +32,9 @@ public class ParserHelper extends Parser {
 		 * 脚本对应位置即可。
 		 */
 		{
+			$$.slist = new ArrayList<Tree>();
+			$$.slist.add($1.stmt);
+			$$.slist.addAll($2.slist);
 			
 		}
 	}

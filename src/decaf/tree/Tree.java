@@ -565,13 +565,13 @@ public abstract class Tree
     {
 
         public List<Tree> subStmt;
-        public Tree last;
+        public Tree first;
 
-        public Dood(List<Tree> subStmt, Tree last, Location loc)
+        public Dood(Tree first, List<Tree> subStmt, Location loc)
         {
             super(DOOD, loc);
             this.subStmt = subStmt;
-            this.last = last;
+            this.first = first;
         }
 
         @Override
@@ -587,9 +587,9 @@ public abstract class Tree
             pw.incIndent();
             pw.println("branches");
             pw.incIndent();
+            first.printTo(pw);
             for (Tree stmt : subStmt)
                 stmt.printTo(pw);
-            last.printTo(pw);
             pw.decIndent();
             pw.decIndent();
         }
@@ -1664,6 +1664,9 @@ public abstract class Tree
                 case BOOL:
                     pw.println("boolconst " + value);
                     break;
+                case IMAGE:
+                    pw.println("imgconst " + value + "j");
+                    break;
                 default:
                     pw.println("stringconst " + MiscUtils.quote((String) value));
             }
@@ -1727,6 +1730,9 @@ public abstract class Tree
             {
                 case INT:
                     pw.print("inttype");
+                    break;
+                case IMAGE:
+                    pw.print("comptype");
                     break;
                 case BOOL:
                     pw.print("booltype");
