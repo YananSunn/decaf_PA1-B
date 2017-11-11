@@ -1,9 +1,10 @@
 class Main {
 	static void main() {
-		complex x;
-		x = -1j;
-		int re;
-		int im;
-		re = !@x;
+	    int n;
+	    if (1)
+	        if (1)
+	            n = 2;
+	        else
+	            n = 3;
 	}
 }

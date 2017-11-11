@@ -3,15 +3,15 @@ program
         static func main voidtype
             formals
             stmtblock
-                vardef x comptype
-                assign
-                    varref x
-                    neg
-                        imgconst 1j
-                vardef re inttype
-                vardef im inttype
-                assign
-                    varref re
-                    not
-                        re
-                            varref x
+                vardef n inttype
+                if
+                    intconst 1
+                    if
+                        intconst 1
+                        assign
+                            varref n
+                            intconst 2
+                    else
+                        assign
+                            varref n
+                            intconst 3
