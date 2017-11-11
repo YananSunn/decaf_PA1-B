@@ -1,0 +1,9 @@
+class Main {
+    static void main() {
+        return case (n) {
+            1: 1;
+            2: 2;;
+            default: 3;
+        };
+    }
+}
